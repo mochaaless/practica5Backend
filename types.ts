@@ -1,21 +1,42 @@
 import { OptionalId } from "mongodb";
 
-export type VueloModel = OptionalId<{
+export type StudentModel = OptionalId<{
   name: string;
-  email: string
-  enrolledCourses: CoursesModel[];
+  email: string;
+  enrolledCourses: string[];
 }>;
 
-
-type CoursesModel = OptionalId<{
-  name: string
-  email: string
-  coursesTaught: [Course!]!
+export type TeacherModel = OptionalId<{
+  name: string;
+  email: string;
+  coursesTaught: string[];
 }>;
 
-type CourseModel = OptionalId<{
-  title: string
-  description: string
-  teacher: Teacher!
-  students: [Student!]!
+export type CourseModel = OptionalId<{
+  title: string;
+  description: string;
+  teacherId: string;
+  studentIds: string[];
+}>;
+
+export type Student = {
+  id: string,
+  name: string,
+  email: string,
+  enrolledCourses: string
+}
+
+export type Teacher = {
+  id: string
+  name: string;
+  email: string;
+  coursesTaught: string[];
+}
+
+export type Course = {
+  id: string
+  title: string;
+  description: string;
+  teacherId: string;
+  studentIds: string[];
 }
