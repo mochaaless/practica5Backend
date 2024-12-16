@@ -5,8 +5,8 @@ export const resolvers = {
     students: async (_: unknown, __: unknown, context: { StudentsCollection: Collection, CoursesCollection: Collection }) => {
       const students = await context.StudentsCollection.find().toArray();
       return students.map(student => ({
-        ...student,
         id: student._id.toString(),
+        ...student,
         enrolledCourses: student.enrolledCourses.map(courseId => context.CoursesCollection.findOne({ _id: new ObjectId(courseId) })),
       }));
     },
@@ -14,16 +14,16 @@ export const resolvers = {
       const student = await context.StudentsCollection.findOne({ _id: new ObjectId(id) });
       if (!student) return null;
       return {
-        ...student,
         id: student._id.toString(),
+        ...student,
         enrolledCourses: student.enrolledCourses.map(courseId => context.CoursesCollection.findOne({ _id: new ObjectId(courseId) })),
       };
     },
     teachers: async (_: unknown, __: unknown, context: { TeachersCollection: Collection, CoursesCollection: Collection }) => {
       const teachers = await context.TeachersCollection.find().toArray();
       return teachers.map(teacher => ({
-        ...teacher,
         id: teacher._id.toString(),
+        ...teacher,
         coursesTaught: teacher.coursesTaught.map(courseId => context.CoursesCollection.findOne({ _id: new ObjectId(courseId) })),
       }));
     },
@@ -31,16 +31,16 @@ export const resolvers = {
       const teacher = await context.TeachersCollection.findOne({ _id: new ObjectId(id) });
       if (!teacher) return null;
       return {
-        ...teacher,
         id: teacher._id.toString(),
+        ...teacher,
         coursesTaught: teacher.coursesTaught.map(courseId => context.CoursesCollection.findOne({ _id: new ObjectId(courseId) })),
       };
     },
     courses: async (_: unknown, __: unknown, context: { CoursesCollection: Collection, StudentsCollection: Collection, TeachersCollection: Collection }) => {
       const courses = await context.CoursesCollection.find().toArray();
       return courses.map(course => ({
-        ...course,
         id: course._id.toString(),
+        ...course,
         teacher: context.TeachersCollection.findOne({ _id: new ObjectId(course.teacherId) }),
         students: course.studentIds.map(studentId => context.StudentsCollection.findOne({ _id: new ObjectId(studentId) })),
       }));
@@ -49,8 +49,8 @@ export const resolvers = {
       const course = await context.CoursesCollection.findOne({ _id: new ObjectId(id) });
       if (!course) return null;
       return {
-        ...course,
         id: course._id.toString(),
+        ...course,
         teacher: context.TeachersCollection.findOne({ _id: new ObjectId(course.teacherId) }),
         students: course.studentIds.map(studentId => context.StudentsCollection.findOne({ _id: new ObjectId(studentId) })),
       };
@@ -59,18 +59,34 @@ export const resolvers = {
   Mutation: {
     createStudent: async (_: unknown, { name, email }: { name: string; email: string }, context: { StudentsCollection: Collection }) => {
       const result = await context.StudentsCollection.insertOne({ name, email, enrolledCourses: [] });
-      return { id: result.insertedId.toString(), name, email, enrolledCourses: [] };
+      return { 
+        id: result.insertedId.toString(), 
+        name, 
+        email, 
+        enrolledCourses: [] 
+      };
     },
     createTeacher: async (_: unknown, { name, email }: { name: string; email: string }, context: { TeachersCollection: Collection }) => {
       const result = await context.TeachersCollection.insertOne({ name, email, coursesTaught: [] });
-      return { id: result.insertedId.toString(), name, email, coursesTaught: [] };
+      return { 
+        id: result.insertedId.toString(), 
+        name, 
+        email, 
+        coursesTaught: [] 
+      };
     },
     createCourse: async (_: unknown, { title, description, teacherId }: { title: string; description: string; teacherId: string }, context: { CoursesCollection: Collection; TeachersCollection: Collection }) => {
       const teacher = await context.TeachersCollection.findOne({ _id: new ObjectId(teacherId) });
       if (!teacher) throw new Error("Teacher not found");
       const result = await context.CoursesCollection.insertOne({ title, description, teacherId, studentIds: [] });
       await context.TeachersCollection.updateOne({ _id: new ObjectId(teacherId) }, { $push: { coursesTaught: result.insertedId.toString() } });
-      return { id: result.insertedId.toString(), title, description, teacherId, studentIds: [] };
+      return { 
+        id: result.insertedId.toString(), 
+        title, 
+        description, 
+        teacherId, 
+        studentIds: [] 
+      };
     },
     updateStudent: async (_: unknown, { id, name, email }: { id: string; name?: string; email?: string }, context: { StudentsCollection: Collection }) => {
       const updatedStudent = await context.StudentsCollection.findOneAndUpdate(
